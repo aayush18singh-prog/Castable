@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Castable — AI Talent Discovery Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dim: #6b5420;
+  --cream: #f0e8d5;
+  --dark: #080705;
+  --dark-1: #0f0e0b;
+  --dark-2: #161410;
+  --dark-3: #1e1b14;
+  --dark-4: #272318;
+  --text: #d4c9b0;
+  --text-dim: #6b6252;
+  --accent-teal: #2dd4bf;
+  --accent-violet: #a78bfa;
+  --border: rgba(201,168,76,0.15);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* GRAIN OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============================
+   NAV
+   ============================ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(8,7,5,0.95), transparent);
+  backdrop-filter: blur(6px);
+}
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gold-light);
+  letter-spacing: 0.05em;
+}
+
+.nav-logo span { color: var(--cream); font-style: italic; }
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--gold-light); }
+
+.nav-cta {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+.nav-cta:hover { background: var(--gold); color: var(--dark); }
+
+/* ============================
+   HERO
+   ============================ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 120px 48px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-spotlight {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-filmstrip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(to right,
+    transparent 0px, transparent 14px,
+    var(--gold-dim) 14px, var(--gold-dim) 22px);
+  opacity: 0.4;
+}
+
+.hero-eyebrow {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.2s;
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(52px, 8vw, 110px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards 0.35s;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold-light);
+  display: block;
+}
+
+.hero-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--text-dim);
+  max-width: 520px;
+  margin: 28px auto 48px;
+  line-height: 1.7;
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards 0.5s;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards 0.65s;
+}
+
+.btn-primary {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  background: var(--gold);
+  color: var(--dark);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+  display: inline-block;
+}
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+.btn-secondary {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+  display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold-light); }
+
+.hero-stats {
+  margin-top: 80px;
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards 0.8s;
+}
+
+.hero-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--gold-light);
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ============================
+   SECTION BASE
+   ============================ */
+section { padding: 100px 48px; }
+
+.section-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 300;
+  line-height: 1.05;
+  color: var(--cream);
+}
+.section-title em { font-style: italic; color: var(--gold-light); }
+
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  margin: 0 48px;
+  opacity: 0.5;
+}
+
+/* ============================
+   PROBLEM STRIP
+   ============================ */
+.problem-strip {
+  background: var(--dark-2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 60px 48px;
+}
+
+.problem-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+
+.problem-card {
+  background: var(--dark-2);
+  padding: 40px;
+}
+
+.problem-icon {
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+.problem-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--cream);
+  margin-bottom: 10px;
+}
+
+.problem-card p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ============================
+   HOW IT WORKS
+   ============================ */
+.how-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 0;
+}
+
+.how-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 64px;
+  border: 1px solid var(--border);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tab-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 36px;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-btn.active {
+  background: var(--gold);
+  color: var(--dark);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.steps-flow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0;
+  position: relative;
+}
+
+.steps-flow::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-dim), var(--gold-dim), transparent);
+  opacity: 0.5;
+}
+
+.flow-step {
+  padding: 0 16px;
+  text-align: center;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.flow-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  background: var(--dark-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.step-circle:hover {
+  background: var(--gold);
+  color: var(--dark);
+  border-color: var(--gold);
+  transform: scale(1.1);
+}
+
+.flow-step h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+
+.flow-step p {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+.ai-pill {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  margin-top: 8px;
+  background: rgba(167,139,250,0.12);
+  color: var(--accent-violet);
+  border: 1px solid rgba(167,139,250,0.25);
+}
+
+/* ============================
+   AI ENGINE
+   ============================ */
+.ai-section {
+  background: var(--dark-1);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ai-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 60px;
+}
+
+.ai-left h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.05;
+}
+.ai-left h2 em { font-style: italic; color: var(--gold-light); display: block; }
+
+.ai-left p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-top: 24px;
+  max-width: 400px;
+}
+
+.score-visual {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  padding: 30px;
+  margin-top: 32px;
+}
+
+.score-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.score-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.score-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.score-track {
+  flex: 1;
+  height: 4px;
+  background: var(--dark-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--gold-dim), var(--gold));
+  width: 0;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.score-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ai-modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ai-module-card {
+  background: var(--dark-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  padding: 20px 22px;
+  transition: all 0.3s;
+  cursor: default;
+}
+
+.ai-module-card:hover {
+  border-left-color: var(--gold);
+  background: var(--dark-4);
+  transform: translateX(4px);
+}
+
+.ai-module-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.module-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  background: rgba(45,212,191,0.1);
+  color: var(--accent-teal);
+  border: 1px solid rgba(45,212,191,0.2);
+}
+
+.ai-module-card p {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* ============================
+   PLATFORM INTELLIGENCE
+   ============================ */
+.platform-section {
+  background: var(--dark);
+  padding: 100px 48px;
+  overflow: hidden;
+}
+
+.platform-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Marquee */
+.platform-marquee-wrap {
+  margin: 52px 0 64px;
+  overflow: hidden;
+  position: relative;
+}
+
+.platform-marquee-wrap::before,
+.platform-marquee-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.platform-marquee-wrap::before { left: 0; background: linear-gradient(to right, var(--dark), transparent); }
+.platform-marquee-wrap::after  { right: 0; background: linear-gradient(to left,  var(--dark), transparent); }
+
+.platform-marquee {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation: marqueeScroll 28s linear infinite;
+}
+
+.platform-marquee:hover { animation-play-state: paused; }
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.platform-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: var(--dark-2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: default;
+  transition: border-color 0.3s, background 0.3s;
+}
+.platform-chip:hover { border-color: var(--gold-dim); background: var(--dark-3); }
+
+.platform-chip-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.platform-chip-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.platform-chip-type {
+  font-size: 9px;
+  color: var(--text-dim);
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mock Report */
+.platform-report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 2px;
+  background: var(--border);
+  margin-top: 0;
+}
+
+.platform-report-left {
+  background: var(--dark-1);
+  padding: 40px;
+}
+
+.platform-report-left h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.platform-report-left h3 em { font-style: italic; color: var(--gold-light); }
+
+.platform-report-left p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+
+.platform-report-right {
+  background: var(--dark-2);
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Tab switcher inside report */
+.report-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.report-tab {
+  flex: 1;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 16px;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.report-tab:last-child { border-right: none; }
+.report-tab.active { background: var(--dark-3); color: var(--gold); }
+.report-tab:hover:not(.active) { color: var(--text); background: var(--dark-3); }
+
+.report-panel { display: none; padding: 28px 32px; }
+.report-panel.active { display: block; }
+
+/* Platform match rows */
+.platform-match-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.07);
+  transition: background 0.2s;
+}
+.platform-match-row:last-child { border-bottom: none; }
+
+.pmr-platform {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cream);
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.pmr-show {
+  flex: 1;
+}
+
+.pmr-show-name {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.pmr-show-detail {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.pmr-match {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pmr-match.high { color: #4ade80; }
+.pmr-match.mid  { color: var(--gold); }
+
+.pmr-role-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.pmr-role-badge.supporting { background: rgba(201,168,76,0.1); color: var(--gold-dim); border: 1px solid rgba(201,168,76,0.2); }
+.pmr-role-badge.lead       { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+.pmr-role-badge.cameo      { background: rgba(167,139,250,0.1); color: var(--accent-violet); border: 1px solid rgba(167,139,250,0.2); }
+
+/* Upcoming alert rows */
+.upcoming-row {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.07);
+}
+.upcoming-row:last-child { border-bottom: none; }
+
+.upcoming-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.upcoming-platform {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+
+.upcoming-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cream);
+}
+
+.upcoming-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.casting-status {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4ade80;
+  margin-left: auto;
+}
+
+/* How AI does it row */
+.ai-how-strip {
+  margin-top: 40px;
+  background: var(--dark-2);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background-color: var(--border);
+}
+
+.ai-how-cell {
+  background: var(--dark-2);
+  padding: 20px 22px;
+}
+
+.ai-how-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--gold-dim);
+  opacity: 0.5;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.ai-how-cell h5 {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.ai-how-cell p {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .platform-report-grid { grid-template-columns: 1fr; }
+  .ai-how-strip { grid-template-columns: 1fr 1fr; }
+  .platform-section { padding: 70px 24px; }
+}
+
+/* ============================
+   MARKETPLACE
+   ============================ */
+.marketplace-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-top: 60px;
+  background: var(--border);
+}
+
+.mp-card {
+  background: var(--dark-1);
+  padding: 48px 40px;
+  transition: background 0.3s;
+}
+.mp-card:hover { background: var(--dark-3); }
+
+.mp-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 64px;
+  font-weight: 300;
+  color: var(--gold-dim);
+  line-height: 1;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.mp-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+}
+
+.mp-card p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+/* ============================
+   PRICING
+   ============================ */
+.pricing-section {
+  background: var(--dark-1);
+  border-top: 1px solid var(--border);
+}
+
+.pricing-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin-top: 60px;
+}
+
+.price-card {
+  background: var(--dark-2);
+  padding: 44px 32px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.price-card.featured {
+  background: var(--dark-3);
+  border: 1px solid var(--gold-dim);
+  margin: -1px;
+}
+
+.price-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: var(--gold);
+  color: var(--dark);
+  padding: 4px 14px;
+}
+
+.price-tier {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.price-amount {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--cream);
+  line-height: 1;
+}
+
+.price-period {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  margin-bottom: 28px;
+}
+
+.price-features {
+  list-style: none;
+  text-align: left;
+}
+
+.price-features li {
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.price-features li::before {
+  content: '—';
+  color: var(--gold-dim);
+  flex-shrink: 0;
+}
+
+.price-cta {
+  width: 100%;
+  margin-top: 32px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.price-card.featured .price-cta {
+  background: var(--gold);
+  color: var(--dark);
+  border-color: var(--gold);
+}
+
+.price-cta:hover { background: var(--gold); color: var(--dark); }
+.price-card.featured .price-cta:hover { background: var(--gold-light); }
+
+/* ============================
+   TESTIMONIALS / MENTOR
+   ============================ */
+.mentor-section {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.mentor-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--border);
+  margin-top: 60px;
+}
+
+.mentor-card {
+  background: var(--dark-1);
+  padding: 40px 32px;
+}
+
+.mentor-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.mentor-source {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
+/* ============================
+   CTA BANNER
+   ============================ */
+.cta-banner {
+  background: var(--dark-2);
+  border-top: 1px solid var(--border);
+  padding: 120px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-glow {
+  position: absolute;
+  bottom: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
+}
+
+.cta-banner h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 300;
+  color: var(--cream);
+  max-width: 700px;
+  margin: 0 auto 16px;
+  line-height: 1.05;
+}
+.cta-banner h2 em { font-style: italic; color: var(--gold-light); }
+
+.cta-banner p {
+  font-size: 15px;
+  color: var(--text-dim);
+  margin-bottom: 40px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================
+   FOOTER
+   ============================ */
+footer {
+  padding: 40px 48px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold-dim);
+}
+
+.footer-note {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ============================
+   ANIMATIONS
+   ============================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+@media (max-width: 900px) {
+  nav { padding: 18px 24px; }
+  .nav-links { display: none; }
+  section { padding: 70px 24px; }
+  .hero { padding: 100px 24px 70px; }
+  .hero-stats { gap: 36px; }
+  .problem-inner { grid-template-columns: 1fr; }
+  .steps-flow { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .steps-flow::before { display: none; }
+  .ai-grid { grid-template-columns: 1fr; }
+  .mp-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .mentor-cards { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 12px; text-align: center; }
+  .divider { margin: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Cast<span>able</span></div>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#ai">AI Engine</a></li>
+    <li><a href="#platforms">Platform Match</a></li>
+    <li><a href="#marketplace">Marketplace</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">Get Early Access</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-spotlight"></div>
+  <p class="hero-eyebrow">Where Clarity Meets Opportunity</p>
+  <h1>Know Your<br><em>Castability.</em></h1>
+  <p class="hero-sub">Building the intelligence layer for the entertainment industry — enabling actors to gain clarity on their positioning and helping casting directors make faster, data-backed casting decisions.</p>
+  <div class="hero-actions">
+    <a href="#cta" class="btn-primary">I'm an Actor</a>
+    <a href="#cta" class="btn-secondary">I'm a Casting Director</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-num">1,900+</div>
+      <div class="hero-stat-label">Films produced yearly</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">₹2.78T</div>
+      <div class="hero-stat-label">India M&E market · 2025</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">300+</div>
+      <div class="hero-stat-label">OTT originals/year</div>
+    </div>
+  </div>
+  <div class="hero-filmstrip"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="padding: 100px 48px;">
+  <div class="how-section" style="padding:0; max-width:1200px; margin:0 auto;">
+    <div class="how-header reveal">
+      <div class="section-label">Platform Flow</div>
+      <h2 class="section-title">How It <em>Works</em></h2>
+    </div>
+
+    <div class="tabs reveal">
+      <button class="tab-btn active" onclick="switchTab('actor', this)">For Actors</button>
+      <button class="tab-btn" onclick="switchTab('cd', this)">For Casting Directors</button>
+    </div>
+
+    <!-- ACTOR FLOW -->
+    <div id="tab-actor" class="tab-content active">
+      <div class="steps-flow">
+        <div class="flow-step">
+          <div class="step-circle">01</div>
+          <h4>Build Profile</h4>
+          <p>Age, languages, location, body type, experience level. Upload professional headshots and full-body photos.</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">02</div>
+          <h4>Submit Your Tape</h4>
+          <p>Upload a 60–90 sec self-tape — monologue, scripted scene, voice sample. This feeds the AI engine.</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">03</div>
+          <h4>AI Analysis</h4>
+          <p>Our engine scores screen presence, emotional range, energy type, voice tonality across 8 dimensions.</p>
+          <span class="ai-pill">AI Core</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">04</div>
+          <h4>Castability + Platform Report</h4>
+          <p>"Best fit: Amazon Prime drama, Zee5 thriller. Could have been in Panchayat, Mirzapur S3. Target: upcoming SonyLIV originals."</p>
+          <span class="ai-pill">AI Output</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">05</div>
+          <h4>Growth Coach</h4>
+          <p>Personalised improvement notes. Re-submit and track your castability score over time.</p>
+          <span class="ai-pill">AI Coach</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">06</div>
+          <h4>Matched Roles</h4>
+          <p>Only see casting calls where your match score is ≥70%. Apply in one tap. Track status in-app.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CD FLOW -->
+    <div id="tab-cd" class="tab-content">
+      <div class="steps-flow">
+        <div class="flow-step">
+          <div class="step-circle">01</div>
+          <h4>Verified Account</h4>
+          <p>Company name, IMDb credits, production type. Verification gate ensures quality on both sides.</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">02</div>
+          <h4>Create Role Brief</h4>
+          <p>Define: age band, look type, language, genre, format, location, timeline. Reference an actor archetype if needed.</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">03</div>
+          <h4>AI Talent Match</h4>
+          <p>AI maps your role to actor castability profiles — not just filters. Returns ranked matches by castability alignment.</p>
+          <span class="ai-pill">AI Core</span>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">04</div>
+          <h4>Review Shortlist</h4>
+          <p>Ranked profiles with match score per dimension, self-tape preview, location, and why they fit this role specifically.</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">05</div>
+          <h4>Invite to Audition</h4>
+          <p>Send in-platform audition invites with brief, scene sides, format (self-tape / in-person / video), and deadline.</p>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle">06</div>
+          <h4>Cast & Close</h4>
+          <p>Mark role filled. Platform records outcome data. Rate actor professionalism — builds the trust flywheel.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- AI ENGINE -->
+<section id="ai" class="ai-section">
+  <div class="ai-inner">
+    <div class="section-label reveal">Intelligence Layer</div>
+    <div class="ai-grid">
+      <div class="ai-left reveal">
+        <h2>The AI is the<br><em>product.</em></h2>
+        <p>Every competitor built a directory. We built a castability intelligence engine. A profile on Castable isn't a form — it's a scored, multi-dimensional reading of how the industry will actually see you, broken down by genre, format, platform, and archetype.</p>
+
+        <div class="score-visual">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+            <div>
+              <div class="score-title" style="margin-bottom:4px;">Castability Profile</div>
+              <div style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; color:var(--cream);">Arjun Mehta, 27</div>
+              <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Mumbai · Hindi, Marathi · OTT Drama</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Cormorant Garamond',serif; font-size:38px; font-weight:600; color:var(--gold-light); line-height:1;">87</div>
+              <div style="font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim);">Overall Score</div>
+            </div>
+          </div>
+
+          <div style="font-family:'Syne',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin-bottom:12px;">Genre Fit</div>
+
+          <div class="score-bar-row">
+            <div class="score-label">Drama</div>
+            <div class="score-track"><div class="score-fill" data-width="92"></div></div>
+            <div class="score-value">92</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">Thriller</div>
+            <div class="score-track"><div class="score-fill" data-width="84"></div></div>
+            <div class="score-value">84</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">Romance</div>
+            <div class="score-track"><div class="score-fill" data-width="77"></div></div>
+            <div class="score-value">77</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">Comedy</div>
+            <div class="score-track"><div class="score-fill" data-width="58"></div></div>
+            <div class="score-value">58</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">Action</div>
+            <div class="score-track"><div class="score-fill" data-width="41"></div></div>
+            <div class="score-value">41</div>
+          </div>
+
+          <div style="font-family:'Syne',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin:18px 0 12px;">Format & Platform Fit</div>
+
+          <div class="score-bar-row">
+            <div class="score-label">OTT Series</div>
+            <div class="score-track"><div class="score-fill" data-width="91"></div></div>
+            <div class="score-value">91</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">Ad Films</div>
+            <div class="score-track"><div class="score-fill" data-width="78"></div></div>
+            <div class="score-value">78</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">Feature Film</div>
+            <div class="score-track"><div class="score-fill" data-width="69"></div></div>
+            <div class="score-value">69</div>
+          </div>
+          <div class="score-bar-row">
+            <div class="score-label">TV Soaps</div>
+            <div class="score-track"><div class="score-fill" data-width="44"></div></div>
+            <div class="score-value">44</div>
+          </div>
+        </div>
+
+        <!-- AI INSIGHT BLOCK -->
+        <div style="margin-top:16px; background:var(--dark-4); border:1px solid rgba(167,139,250,0.2); border-left:3px solid var(--accent-violet); padding:18px 20px;">
+          <div style="font-family:'Syne',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--accent-violet); text-transform:uppercase; margin-bottom:10px;">🤖 AI Casting Insight</div>
+          <p style="font-size:12px; color:var(--text); line-height:1.65; margin:0;">Arjun's screen energy reads <strong style="color:var(--cream);">restrained intensity</strong> — high emotional depth with controlled delivery. This positions him strongly for <strong style="color:var(--cream);">lead and co-lead roles in OTT drama and thriller formats</strong>. His natural Hindi diction and urban look type are well-suited for Amazon Prime and SonyLIV original productions. His comedic timing scores lower (58) — not a weakness, but a signal to target dramatic rather than ensemble comedy roles. <strong style="color:var(--cream);">Recommended first move:</strong> Target supporting roles in JioCinema or Prime dramas before pursuing lead cinema.</p>
+        </div>
+
+      </div>
+
+      <div class="ai-modules-list reveal">
+        <div class="ai-module-card">
+          <h4>Vision Analysis <span class="module-badge">Multimodal AI</span></h4>
+          <p>Face expressiveness, emotion range from self-tape, look-type classification (protagonist / character / supporting), physical archetype tagging. Reads micro-expressions across every frame.</p>
+        </div>
+        <div class="ai-module-card">
+          <h4>Voice & Speech Analysis <span class="module-badge">Audio ML</span></h4>
+          <p>Tonality (warm / commanding / soft), language accent detection, dialect purity, speech pace and resonance. Scores for voiceover suitability, regional cinema fit, and ad film narration potential.</p>
+        </div>
+        <div class="ai-module-card">
+          <h4>Screen Presence Scoring <span class="module-badge">Proprietary</span></h4>
+          <p>Measures stillness vs energy balance, eye contact, spatial ownership on frame, and command of the lens — the intangible quality casting directors call "it factor," made measurable.</p>
+        </div>
+        <div class="ai-module-card">
+          <h4>Role ↔ Talent Matching <span class="module-badge">Vector Embeddings</span></h4>
+          <p>Semantic match between role brief and castability profile. Understands nuance — "subtle intensity for a SonyLIV thriller" vs "raw energy for a JioCinema action series."</p>
+        </div>
+        <div class="ai-module-card">
+          <h4>Growth Tracking <span class="module-badge">Longitudinal</span></h4>
+          <p>Tracks actor across re-submissions. "Your comedic timing improved 12% vs last tape. Your dramatic range is now in the top 18% of Hindi OTT actors on the platform."</p>
+        </div>
+        <div class="ai-module-card">
+          <h4>Platform Intelligence <span class="module-badge">OTT · Cinema · TV</span></h4>
+          <p>AI cross-references your castability profile against 30+ India platforms. Returns shows you could have been in, platform DNA alignment, and upcoming productions actively casting your type.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM INTELLIGENCE -->
+<section id="platforms" class="platform-section">
+  <div class="platform-inner">
+
+    <div class="section-label reveal">Platform Intelligence</div>
+    <h2 class="section-title reveal">Know exactly <em>which screen</em><br>you belong on.</h2>
+
+    <!-- MARQUEE OF PLATFORMS -->
+    <div class="platform-marquee-wrap reveal">
+      <div class="platform-marquee" id="marquee">
+        <!-- Row duplicated for seamless loop -->
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#00a8e0;"></div><span class="platform-chip-name">Amazon Prime</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e50914;"></div><span class="platform-chip-name">Netflix</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#f5a623;"></div><span class="platform-chip-name">JioCinema</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#003791;"></div><span class="platform-chip-name">SonyLIV</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#7b2d8b;"></div><span class="platform-chip-name">Zee5</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#1a1a2e;"></div><span class="platform-chip-name">Hotstar</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#ff5f00;"></div><span class="platform-chip-name">MX Player</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e83e8c;"></div><span class="platform-chip-name">ALTBalaji</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#c0392b;"></div><span class="platform-chip-name">Aha Video</span><span class="platform-chip-type">Regional · Telugu/Tamil</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#f39c12;"></div><span class="platform-chip-name">Sun NXT</span><span class="platform-chip-type">Regional · South</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#27ae60;"></div><span class="platform-chip-name">Manorama Max</span><span class="platform-chip-type">Regional · Malayalam</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#8e44ad;"></div><span class="platform-chip-name">Voot</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#2980b9;"></div><span class="platform-chip-name">Discovery+</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e74c3c;"></div><span class="platform-chip-name">Ullu</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#16a085;"></div><span class="platform-chip-name">Hoichoi</span><span class="platform-chip-type">Regional · Bengali</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#d35400;"></div><span class="platform-chip-name">Namma Flix</span><span class="platform-chip-type">Regional · Kannada</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#1abc9c;"></div><span class="platform-chip-name">Klikk</span><span class="platform-chip-type">Regional · Bengali</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#2c3e50;"></div><span class="platform-chip-name">Star Gold</span><span class="platform-chip-type">TV</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#7f8c8d;"></div><span class="platform-chip-name">Colors TV</span><span class="platform-chip-type">TV · Soaps</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#2ecc71;"></div><span class="platform-chip-name">Star Plus</span><span class="platform-chip-type">TV · Soaps</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#3498db;"></div><span class="platform-chip-name">Sony SAB</span><span class="platform-chip-type">TV · Comedy</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#9b59b6;"></div><span class="platform-chip-name">Zee TV</span><span class="platform-chip-type">TV · Soaps</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e67e22;"></div><span class="platform-chip-name">Star Vijay</span><span class="platform-chip-type">Regional · Tamil TV</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#c9a84c;"></div><span class="platform-chip-name">ETV Bharat</span><span class="platform-chip-type">Regional · Telugu</span></div>
+        <!-- Duplicate for loop -->
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#00a8e0;"></div><span class="platform-chip-name">Amazon Prime</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e50914;"></div><span class="platform-chip-name">Netflix</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#f5a623;"></div><span class="platform-chip-name">JioCinema</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#003791;"></div><span class="platform-chip-name">SonyLIV</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#7b2d8b;"></div><span class="platform-chip-name">Zee5</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#1a1a2e;"></div><span class="platform-chip-name">Hotstar</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#ff5f00;"></div><span class="platform-chip-name">MX Player</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e83e8c;"></div><span class="platform-chip-name">ALTBalaji</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#c0392b;"></div><span class="platform-chip-name">Aha Video</span><span class="platform-chip-type">Regional · Telugu/Tamil</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#f39c12;"></div><span class="platform-chip-name">Sun NXT</span><span class="platform-chip-type">Regional · South</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#27ae60;"></div><span class="platform-chip-name">Manorama Max</span><span class="platform-chip-type">Regional · Malayalam</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#8e44ad;"></div><span class="platform-chip-name">Voot</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#2980b9;"></div><span class="platform-chip-name">Discovery+</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e74c3c;"></div><span class="platform-chip-name">Ullu</span><span class="platform-chip-type">OTT</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#16a085;"></div><span class="platform-chip-name">Hoichoi</span><span class="platform-chip-type">Regional · Bengali</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#d35400;"></div><span class="platform-chip-name">Namma Flix</span><span class="platform-chip-type">Regional · Kannada</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#2c3e50;"></div><span class="platform-chip-name">Star Gold</span><span class="platform-chip-type">TV</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#7f8c8d;"></div><span class="platform-chip-name">Colors TV</span><span class="platform-chip-type">TV · Soaps</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#2ecc71;"></div><span class="platform-chip-name">Star Plus</span><span class="platform-chip-type">TV · Soaps</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#3498db;"></div><span class="platform-chip-name">Sony SAB</span><span class="platform-chip-type">TV · Comedy</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#9b59b6;"></div><span class="platform-chip-name">Zee TV</span><span class="platform-chip-type">TV · Soaps</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#e67e22;"></div><span class="platform-chip-name">Star Vijay</span><span class="platform-chip-type">Regional · Tamil TV</span></div>
+        <div class="platform-chip"><div class="platform-chip-dot" style="background:#c9a84c;"></div><span class="platform-chip-name">ETV Bharat</span><span class="platform-chip-type">Regional · Telugu</span></div>
+      </div>
+    </div>
+
+    <!-- MOCK PLATFORM REPORT -->
+    <div class="platform-report-grid reveal">
+
+      <div class="platform-report-left">
+        <h3>Your AI<br><em>Platform Report.</em></h3>
+        <p>Based on your tape analysis, our AI matches your castability profile against every show, film, and TV series currently in production or recently aired — across 30+ platforms. You see exactly where you fit, historically and in real-time.</p>
+        <p style="margin-bottom:0;">Casting directors see the same data in reverse — they post a role, and actors matched to their platform's content DNA rise to the top.</p>
+      </div>
+
+      <div class="platform-report-right">
+        <div class="report-tabs">
+          <button class="report-tab active" onclick="switchReport('past', this)">Shows You Could Have Been In</button>
+          <button class="report-tab" onclick="switchReport('upcoming', this)">Upcoming Opportunities</button>
+        </div>
+
+        <!-- PAST SHOWS PANEL -->
+        <div id="report-past" class="report-panel active">
+          <div style="font-family:'Syne',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin-bottom:16px;">Illustrative sample, not real casting records · Based on: Drama 87 · Urban Look · Hindi · Age 24–30</div>
+
+          <div class="platform-match-row">
+            <div class="pmr-platform">Amazon Prime</div>
+            <div class="pmr-show">
+              <div class="pmr-show-name">Panchayat S3</div>
+              <div class="pmr-show-detail">Rural drama · Supporting role · Prahlad's nephew</div>
+            </div>
+            <span class="pmr-role-badge supporting">Supporting</span>
+            <div class="pmr-match high">91%</div>
+          </div>
+
+          <div class="platform-match-row">
+            <div class="pmr-platform">Netflix</div>
+            <div class="pmr-show">
+              <div class="pmr-show-name">Kota Factory S3</div>
+              <div class="pmr-show-detail">Slice-of-life · Student ensemble · New hostel mate</div>
+            </div>
+            <span class="pmr-role-badge lead">Lead</span>
+            <div class="pmr-match high">88%</div>
+          </div>
+
+          <div class="platform-match-row">
+            <div class="pmr-platform">SonyLIV</div>
+            <div class="pmr-show">
+              <div class="pmr-show-name">Scam 2003</div>
+              <div class="pmr-show-detail">Crime drama · Junior associate role</div>
+            </div>
+            <span class="pmr-role-badge supporting">Supporting</span>
+            <div class="pmr-match mid">76%</div>
+          </div>
+
+          <div class="platform-match-row">
+            <div class="pmr-platform">Zee5</div>
+            <div class="pmr-show">
+              <div class="pmr-show-name">Farzi</div>
+              <div class="pmr-show-detail">Thriller · Ensemble cast · Street-level character</div>
+            </div>
+            <span class="pmr-role-badge cameo">Cameo</span>
+            <div class="pmr-match mid">71%</div>
+          </div>
+
+          <div class="platform-match-row">
+            <div class="pmr-platform">MX Player</div>
+            <div class="pmr-show">
+              <div class="pmr-show-name">Aashram S4</div>
+              <div class="pmr-show-detail">Drama · Follower character arc</div>
+            </div>
+            <span class="pmr-role-badge supporting">Supporting</span>
+            <div class="pmr-match mid">68%</div>
+          </div>
+
+          <div style="margin-top:16px; font-size:11px; color:var(--text-dim); font-style:italic;">
+            + 23 more shows across platforms matched to your profile
+          </div>
+        </div>
+
+        <!-- UPCOMING PANEL -->
+        <div id="report-upcoming" class="report-panel">
+          <div style="font-family:'Syne',sans-serif; font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin-bottom:16px;">Illustrative preview · sample data, not live listings</div>
+
+          <div class="upcoming-row">
+            <div class="upcoming-header">
+              <span class="upcoming-platform">Amazon Prime</span>
+              <div class="live-dot"></div>
+              <span class="casting-status">Sample</span>
+            </div>
+            <div class="upcoming-title">Untitled Rural Drama Series</div>
+            <div class="upcoming-desc">Rural drama series. Seeking 24–32yo male, Hindi-native, natural screen presence. Your match: 93% — connect with casting director?</div>
+          </div>
+
+          <div class="upcoming-row">
+            <div class="upcoming-header">
+              <span class="upcoming-platform">JioCinema</span>
+              <div class="live-dot"></div>
+              <span class="casting-status">Sample</span>
+            </div>
+            <div class="upcoming-title">IPL Crime Drama (Working Title)</div>
+            <div class="upcoming-desc">Sports-adjacent thriller. Urban male, strong dramatic range. Your match: 87% — 3 casting directors have viewed your profile this week.</div>
+          </div>
+
+          <div class="upcoming-row">
+            <div class="upcoming-header">
+              <span class="upcoming-platform">SonyLIV</span>
+              <div class="live-dot" style="background:var(--gold);"></div>
+              <span class="casting-status" style="color:var(--gold);">Sample</span>
+            </div>
+            <div class="upcoming-title">Political Thriller (S2)</div>
+            <div class="upcoming-desc">Ensemble political drama. Casting opens in 3 weeks. Set reminder — your profile is pre-shortlisted for this role type.</div>
+          </div>
+
+          <div class="upcoming-row">
+            <div class="upcoming-header">
+              <span class="upcoming-platform">Zee5 Originals</span>
+              <div class="live-dot"></div>
+              <span class="casting-status">Sample</span>
+            </div>
+            <div class="upcoming-title">Anthology Crime Series</div>
+            <div class="upcoming-desc">Anthology crime format. Multiple episodes, multiple roles. High volume casting — your look type is needed immediately.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW AI DOES THIS -->
+    <div class="ai-how-strip reveal">
+      <div class="ai-how-cell">
+        <div class="ai-how-num">01</div>
+        <h5>Tape → Profile</h5>
+        <p>AI converts your self-tape into a castability embedding — a vector that captures your look, energy, emotion range, and voice signature.</p>
+      </div>
+      <div class="ai-how-cell">
+        <div class="ai-how-num">02</div>
+        <h5>Show → DNA</h5>
+        <p>Every show on every platform is mapped to a casting DNA — the profile of actor types that appear in it, extracted from cast metadata and scene analysis.</p>
+      </div>
+      <div class="ai-how-cell">
+        <div class="ai-how-num">03</div>
+        <h5>Match Score</h5>
+        <p>Cosine similarity between your actor embedding and each show's casting DNA gives you a match % — how well you'd fit into that show's world.</p>
+      </div>
+      <div class="ai-how-cell">
+        <div class="ai-how-num">04</div>
+        <h5>Live Feed</h5>
+        <p>As new productions are announced, the AI ingests casting briefs and surfaces you to casting directors whose brief matches your profile in real time.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MARKETPLACE -->
+<section id="marketplace" style="padding: 100px 48px;">
+  <div class="marketplace-section" style="padding:0;">
+    <div class="section-label reveal">Two-Sided Marketplace</div>
+    <h2 class="section-title reveal">Where <em>clarity</em> meets<br>opportunity.</h2>
+    <div class="mp-grid reveal">
+      <div class="mp-card">
+        <div class="mp-num">01</div>
+        <h3>Opportunity Feed for Actors</h3>
+        <p>A personalised daily feed of matching roles filtered by castability score, location, format, and language. Urgent high-fit roles surface instantly. No more scrolling through roles that were never meant for you.</p>
+      </div>
+      <div class="mp-card">
+        <div class="mp-num">02</div>
+        <h3>Natural Language Discovery for CDs</h3>
+        <p>Search: "25-year-old Tamil-speaking actor, strong dramatic range, urban look, OTT thriller." AI returns a ranked shortlist with match scores. No forms. No spreadsheets.</p>
+      </div>
+      <div class="mp-card">
+        <div class="mp-num">03</div>
+        <h3>Two-Way Trust & Reputation</h3>
+        <p>Actors earn trust scores from CD feedback — punctuality, professionalism, tape quality. CDs earn trust from actors — legitimate projects, no ghosting. Accountability on both sides.</p>
+      </div>
+      <div class="mp-card">
+        <div class="mp-num">04</div>
+        <h3>Regional Cinema Layer</h3>
+        <p>India's 65%+ regional film output is underserved by every existing platform. Castable is built multi-lingual from day one — Tamil, Telugu, Kannada, Marathi, Bengali. Your accent is a feature, not a filter.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section id="pricing" class="pricing-section">
+  <div class="pricing-inner">
+    <div class="section-label reveal">Simple Pricing</div>
+    <h2 class="section-title reveal">Start free.<br><em>Grow when you do.</em></h2>
+    <div class="pricing-grid reveal">
+
+      <div class="price-card">
+        <div class="price-tier">Actor Free</div>
+        <div class="price-amount">₹0</div>
+        <div class="price-period">Forever</div>
+        <ul class="price-features">
+          <li>Basic profile & portfolio</li>
+          <li>Apply to 5 roles/month</li>
+          <li>View casting calls feed</li>
+          <li>Basic look-type classification</li>
+        </ul>
+        <button class="price-cta">Create Free Profile</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-tier">Actor Pro</div>
+        <div class="price-amount">₹299</div>
+        <div class="price-period">per month</div>
+        <ul class="price-features">
+          <li>Full AI castability report</li>
+          <li>Genre & format score breakdown</li>
+          <li>Platform match across 30+ OTT/TV</li>
+          <li>"Shows you could have been in" report</li>
+          <li>Upcoming castings feed (matched)</li>
+          <li>Unlimited role applications</li>
+          <li>AI growth recommendations</li>
+          <li>Longitudinal improvement tracking</li>
+        </ul>
+        <button class="price-cta">Start 14-Day Free Trial</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Casting Director</div>
+        <div class="price-amount">₹2,999</div>
+        <div class="price-period">per month</div>
+        <ul class="price-features">
+          <li>Unlimited role postings</li>
+          <li>AI talent matching engine</li>
+          <li>Natural language talent search</li>
+          <li>Ranked shortlists with match scores</li>
+          <li>Audition management tools</li>
+          <li>Analytics & talent availability data</li>
+        </ul>
+        <button class="price-cta">Request Demo</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MENTOR INSIGHTS -->
+<section style="padding: 100px 48px; background: var(--dark);">
+  <div class="mentor-section">
+    <div class="section-label reveal">Why This Wins</div>
+    <h2 class="section-title reveal">The insight<br><em>others miss.</em></h2>
+    <div class="mentor-cards reveal">
+      <div class="mentor-card">
+        <p class="mentor-quote">"Actors don't just want jobs — they want clarity about themselves. A castability score that improves over time is a painkiller, not a vitamin."</p>
+        <div class="mentor-source">On Actor Psychology</div>
+      </div>
+      <div class="mentor-card">
+        <p class="mentor-quote">"Every competitor built a directory. The whitespace is the intelligence layer — castability is a trainable, measurable signal, not just vibes in a casting room."</p>
+        <div class="mentor-source">On The Moat</div>
+      </div>
+      <div class="mentor-card">
+        <p class="mentor-quote">"Don't launch for all actors in India. Launch for Tamil OTT drama actors in Chennai. Own that. Expand. The data flywheel only spins when you dominate a niche."</p>
+        <div class="mentor-source">On Strategy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div id="cta" class="cta-banner">
+  <div class="cta-glow"></div>
+  <h2>The spotlight is yours.<br><em>If you know where to stand.</em></h2>
+  <p>Castable is at prototype stage. If you're an actor, casting director, builder or investor, let's talk.</p>
+  <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; position:relative; z-index:1;">
+    <a href="#" class="btn-primary" onclick="showWaitlist('actor'); return false;">I'm an Actor — Let's Talk</a>
+    <a href="#" class="btn-secondary" onclick="showWaitlist('cd'); return false;">I'm a Casting Director</a>
+  </div>
+  <div id="waitlist-form" style="display:none; margin-top:40px; position:relative; z-index:1;">
+    <div style="max-width:460px; margin:0 auto; background:var(--dark-3); border:1px solid var(--border); padding:32px;">
+      <p id="waitlist-title" style="font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); margin-bottom:16px;"></p>
+      <p style="font-size:14px; color:var(--text); line-height:1.7;">This page is a concept demo, and the sample profiles and shows are illustrative. To pilot, build or invest, reach out to Aayush directly through the LinkedIn post that brought you here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Castable</div>
+  <div class="footer-note">Built for India's next generation of screen talent · 2026 · Concept prototype: sample profiles and show matches are illustrative</div>
+</footer>
+
+<script>
+// REPORT TAB SWITCHING
+function switchReport(panel, btn) {
+  document.querySelectorAll('.report-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.report-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('report-' + panel).classList.add('active');
+  btn.classList.add('active');
+}
+
+// TAB SWITCHING
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  animateSteps();
+}
+
+// STEP ANIMATIONS
+function animateSteps() {
+  const steps = document.querySelectorAll('.flow-step');
+  steps.forEach((s, i) => {
+    s.classList.remove('visible');
+    setTimeout(() => s.classList.add('visible'), i * 120);
+  });
+}
+
+// SCROLL REVEAL
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// SCORE BAR ANIMATION
+const scoreObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.score-fill').forEach(fill => {
+        const w = fill.dataset.width;
+        setTimeout(() => { fill.style.width = w + '%'; }, 200);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+const scoreVisual = document.querySelector('.score-visual');
+if (scoreVisual) scoreObserver.observe(scoreVisual);
+
+// WAITLIST FORM
+function showWaitlist(type) {
+  const form = document.getElementById('waitlist-form');
+  const title = document.getElementById('waitlist-title');
+  form.style.display = 'block';
+  title.textContent = type === 'actor' ? 'Actor Early Access' : 'Casting Director Early Access';
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function submitWaitlist() {
+  const email = document.getElementById('waitlist-email').value;
+  const name = document.getElementById('waitlist-name').value;
+  if (!email || !name) {
+    alert('Please fill in your name and email.');
+    return;
+  }
+  document.getElementById('waitlist-email').style.display = 'none';
+  document.getElementById('waitlist-name').style.display = 'none';
+  document.querySelector('#waitlist-form button').style.display = 'none';
+  document.getElementById('waitlist-thanks').style.display = 'block';
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(animateSteps, 400);
+});
+</script>
+</body>
+</html>
